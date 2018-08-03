@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+                        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd"
+	default-autowire="byName">
+
+	<!-- druid默认的filter：wall不允许一次执行多个sql，修改为允许 -->
+	<bean id="wall-filter-config" class="com.alibaba.druid.wall.WallConfig"
+		init-method="init">
+		<property name="multiStatementAllow" value="true" />
+		<property name="noneBaseStatementAllow" value="true" />
+		<property name="dir" value="META-INF/druid/wall/mysql" />
+	</bean>
+
+	<bean id="wall-filter" class="com.alibaba.druid.wall.WallFilter">
+		<property name="config" ref="wall-filter-config" />
+		<property name="dbType" value="mysql" />
+	</bean>
+
+	<bean id="stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
+		<!-- Slow Query监控（3秒） -->
+		<property name="slowSqlMillis" value="3000" />
+		<property name="logSlowSql" value="true" />
+		
+		<!-- SQL合并 -->
+		<property name="mergeSql" value="true" />
+	</bean>
+	
+	<!-- dataSource -->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		init-method="init" destroy-method="close">
+		<!-- 基本属性 url、user、password -->
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+
+		<!-- 初始化连接大小：连接池建立时创建的初始化连接数 -->
+		<property name="initialSize" value="15" />
+		
+		<!-- 最小空闲连接数：连接池中最小的活跃连接数 -->
+		<property name="minIdle" value="10" />
+		
+		<!-- 最大连接数：连接池中最大的活跃连接数 -->
+		<property name="maxActive" value="200" />
+
+		<!-- 配置获取连接等待超时的时间 -->
+		<property name="maxWait" value="60000" />
+
+		<property name="keepAlive" value="true" />
+		
+		<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+		<property name="timeBetweenEvictionRunsMillis" value="60000" />
+
+		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+		<property name="minEvictableIdleTimeMillis" value="300000" />
+
+		<property name="validationQuery" value="SELECT 'x'" />
+		<property name="testWhileIdle" value="true" />
+		<property name="testOnBorrow" value="false" />
+		<property name="testOnReturn" value="false" />
+		
+		<!-- 关闭长时间不使用的连接 -->
+		<property name="removeAbandoned" value="true" /> <!-- 打开removeAbandoned功能 -->
+    	<property name="removeAbandonedTimeout" value="1800" /> <!-- 1800秒，也就是30分钟 -->
+    	<property name="logAbandoned" value="true" /> <!-- 关闭abanded连接时输出错误日志 -->
+
+		<!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+		<property name="poolPreparedStatements" value="true" />
+		<property name="maxPoolPreparedStatementPerConnectionSize" value="20" />
+			
+		<!-- 配置监控统计拦截的filters -->
+		<property name="filters" value="stat" />
+
+		<property name="proxyFilters">
+			<list>
+				<ref bean="wall-filter" />
+				<ref bean="stat-filter" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="lazySqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+
+		<!-- 如果在mybatis-config.xml中指定SQL映射文件的话，需要逐个列出，放在此处，使用SqlSessionFactoryBean按照资源路径匹配规则扫描加载 -->
+		<!-- 如何mapper的xml文件和java文件在同一个目录下的话，就不需要再指定mapperLocations了 -->
+		<property name="mapperLocations">
+			<array>
+				<value>classpath*:/mapper/*/*.xml</value>
+			</array>
+		</property>
+
+		<!--mybatis分页插件 -->
+		<property name="configLocation" value="classpath:config/mybatis-config.xml" />
+	</bean>
+
+	<bean id="lazySqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="lazySqlSessionFactory" />
+	</bean>
+
+	<!-- 配置扫描包，加载mapper代理对象，与sqlSessionFactory中的mapperLocations功能重复，注释掉 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage"
+			value="com.ztesoft.frameworklearning.*.mapper"></property>
+		<property name="sqlSessionFactoryBeanName" value="lazySqlSessionFactory" />
+	</bean>
+
+	<!-- 对dataSource 数据源进行事务管理 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- 启用对事务注解的支持，对标注@Transactional注解的Bean启用事务支持 -->
+	<!-- 默认情况下，<tx:annotation-driven>会自动使用名为transactionManager的事务管理器，如果事务管理器名称是transactionManager，那么可以简写为<tx:annotation-driven/> -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+</beans>

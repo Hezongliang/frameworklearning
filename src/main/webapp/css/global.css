@@ -1,0 +1,156 @@
+@CHARSET "UTF-8";
+
+p {
+	text-indent: 2em; /*段落首行缩进两个汉字，em是相对单位，2em即现在一个字大小的两倍*/
+	margin: 0 0 0px;
+}
+
+div {
+	border: 0px solid #c0c0c0;
+}
+
+/*
+* 与bootstrap中的max-height相对应，用于设置最小高度（适用于滚动条）
+*/
+.min-height-100 {
+	min-height: 100px;
+}
+
+.text-indent-2 {
+	text-indent: 2em;
+}
+
+/*重新覆盖bootstrap的样式  防止图片有padding导致偏移*/
+/* .panel-title { */
+/* 	padding: 0px 0px; */
+/* 	font-size: 18px; */
+/* 	font-weight: 800; */
+/* } */
+
+.panel-body {
+	padding: 5px;
+}
+
+/*
+* 重新设置col的padding-right和padding-left，覆盖bootstrap中的设置
+*/
+.col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2, .col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6, .col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8, .col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, .col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12 {
+/*   padding-right: 5px; */
+/*   padding-left: 5px; */
+}
+
+.pre-scrollable {
+  min-height: 340px;
+}
+
+/*
+* 新增pre-scrollable，和bootstrap中的pre-scrollable相同，区别是min-height不同，用于设置横向填充整个container的组件
+*/
+.pre-scrollable-1 {
+  min-height: 100px;
+  max-height: 340px;
+  overflow-y: scroll;
+}
+
+/*
+* 新增pre-scrollable，和bootstrap中的pre-scrollable相同，区别是min-height和max-height不同，用于设置当横向只有“接诊时已知患者信息”和“问诊结果”时的高度
+* 如果“接诊时已知患者信息”横向填充了整个container，就用pre-scrollable-1
+* 如果“接诊时已知患者信息”和“问诊结果”横向填充了整个container，就用pre-scrollable-2
+* 如果三个或者三个以上的组件横向填充了整个container，就用pre-scrollable
+* 备注：pre-scrollable、pre-scrollable-1和pre-scrollable-2，这三个css只有min-height和max-height不同
+*/
+.pre-scrollable-2 {
+  min-height: 240px;
+  max-height: 240px;
+  overflow-y: scroll;
+}
+
+/*
+* col内部嵌套row时，bootstrap中对row设置了margin-right: -15px; margin-left: -15px;会造成row顶开外层的col，新增css，去掉margin-right和margin-left
+*/
+.no-margin {
+	margin-left: 0px;
+	margin-right: 0px;
+}
+
+.no-padding {
+	padding: 0px 0px 0px 0px;
+}
+
+/*顶部留40个像素的空白*/
+.margin-top-40 {
+	margin-top: 40px;
+}
+
+.header, .footer {
+	background: #F4F4F4;
+}
+
+img:hover, img:focus {
+	color: #333;
+  	text-decoration: none;
+  	cursor: pointer;
+  	border-color: #3c763d;
+  	-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+          box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+}
+
+/*
+* 适用于目录树的选择按钮
+*/
+.btn-select {
+	margin-top:150px;
+}
+
+/*
+* 适用于目录树的删除按钮
+*/
+.btn-delete {
+	margin-top:20px;
+}
+
+/*
+* 页面子标题和操作说明的css
+*/
+.page-subtitle, .operating-instructions {
+  	margin:0 auto;
+  	width: auto;
+  	height: 40px;
+  	padding: 10px 15px;
+  	font-family: Microsoft YaHei;
+  	font-size: 20px;
+  	font-weight: bold;
+  	line-height: 1.42857143;
+  	color: #8a6d3b;
+    background-color: #fcf8e3;
+    border-color: #faebcc;
+  	border: 1px solid #ccc;
+  	border-radius: 4px;
+  	-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+          	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+  	-webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+       	-o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+           transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
+/*
+* 操作说明的css，手型鼠标指针
+*/
+.operating-instructions {
+  	cursor: pointer;
+}
+
+/*
+* 表格单元格内容垂直居中
+*/
+.table-vertical-align-middle > thead > tr > td {
+	vertical-align: middle !important;
+}
+
+.table-vertical-align-middle > tbody > tr > td {
+	vertical-align: middle !important;
+}
+
+.cursor-pointer, a {
+  	cursor: pointer;
+}

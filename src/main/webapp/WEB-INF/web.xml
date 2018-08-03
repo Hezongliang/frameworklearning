@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+    http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+
+	<!-- 配置web.xml，使其具有springmvc特性，主要配置两处，一个是ContextLoaderListener，一个是DispatcherServlet -->
+
+	<!-- 配置Spring配置文件路径 -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+        	classpath:config/applicationContext.xml
+        </param-value>
+	</context-param>
+
+	<!-- 配置log4j配置文件路径(log4j的加载应该放在ContextLoaderListener之前 -->
+	<context-param>
+		<param-name>log4jConfiguration</param-name>
+    	<param-value>classpath:config/log4j2.xml</param-value>
+	</context-param>
+	<!-- 60s 检测日志配置 文件变化 -->
+<!-- 	<context-param> -->
+<!-- 		<param-name>log4jRefreshInterval</param-name> -->
+<!-- 		<param-value>60000</param-value> -->
+<!-- 	</context-param> -->
+
+	<!-- 配置Log4j监听器 -->
+<!-- 	<listener> -->
+<!-- 		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class> -->
+<!-- 	</listener> -->
+
+	<!-- 配置ContextLoaderListener表示，该工程要以spring的方式启动。启动时会默认在/WEB-INF目录下查找applicationContext.xml 
+		作为spring容器的配置文件，该文件里可以初始化一些bean -->
+	<!-- 配置Spring上下文监听器 -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	
+	<!-- 解决java.lang.IllegalStateException: No thread-bound request found的问题 -->
+	<listener>
+    	<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+   </listener>
+
+	<!-- 配置Spring字符集过滤器 -->
+	<filter>
+		<filter-name>encodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>forceEncoding</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>encodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<!-- druid监控配置 -->
+	<filter>
+		<filter-name>druidWebStatFilter</filter-name>
+		<filter-class>com.alibaba.druid.support.http.WebStatFilter</filter-class>
+		<init-param>
+			<param-name>exclusions</param-name>
+			<param-value>/css/*,/jslib/*,*.js,*.css,/druid*,*.jsp</param-value>
+		</init-param>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>druidWebStatFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<servlet>
+		<servlet-name>druidStatView</servlet-name>
+		<servlet-class>com.alibaba.druid.support.http.StatViewServlet</servlet-class>
+		<init-param>
+			<!-- 允许清空统计数据 -->
+			<param-name>resetEnable</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<init-param>
+			<!-- 用户名 -->
+			<param-name>loginUsername</param-name>
+			<param-value>ztesoft</param-value>
+		</init-param>
+		<init-param>
+			<!-- 密码 -->
+			<param-name>loginPassword</param-name>
+			<param-value>ztesoft</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>druidStatView</servlet-name>
+		<url-pattern>/druid/*</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>DisplayChart</servlet-name>
+		<servlet-class>org.jfree.chart.servlet.DisplayChart</servlet-class>
+	</servlet >
+	<servlet-mapping>
+		<servlet-name>DisplayChart</servlet-name>
+		<url-pattern>/chart</url-pattern>
+	</servlet-mapping>
+
+
+	<!-- spring mvc 配置 -->
+	<!-- 配置DispatcherServlet表示，该工程将采用springmvc的方式。启动时也会默认在/WEB-INF目录下查找XXX-servlet.xml作为配置文件， 
+		XXX就是DispatcherServlet的名字，该文件中将配置两项重要的mvc特性：HandlerMapping,负责为DispatcherServlet这个前端控制器的请求查找Controller； 
+		ViewResolver,负责为DispatcherServlet查找ModelAndView的视图解析器。 此处使用指定的配置文件spring-mvc.xml -->
+	<servlet>
+		<servlet-name>Dispatcher</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<!--<param-value>/WEB-INF/classes/spring-mvc-servlet.xml</param-value> -->
+			<param-value>classpath:config/spring-servlet.xml</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+
+	<!-- spring mvc 请求后缀 -->
+	<servlet-mapping>
+		<servlet-name>Dispatcher</servlet-name>
+		<!-- 拦截所有的请求,交给DispatcherServlet处理，注意：不能使用/*，使用/*的话会导致项目启动后首页打不开 -->
+		<url-pattern>*.do</url-pattern>
+		<url-pattern>*.html</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 首页 -->
+	<welcome-file-list>
+		<welcome-file>login.html</welcome-file>
+	</welcome-file-list>
+
+	<!-- 错误页 -->
+	<error-page>
+		<error-code>404</error-code>
+		<location>/rest/page/404</location>
+	</error-page>
+	<error-page>
+		<error-code>500</error-code>
+		<location>/rest/page/500</location>
+	</error-page>
+	<error-page>
+		<exception-type>org.apache.shiro.authz.AuthorizationException</exception-type>
+		<location>/rest/page/401</location>
+	</error-page>
+</web-app>

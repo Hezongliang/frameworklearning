@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE generatorConfiguration  
+  PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"  
+  "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+
+	<!-- 指定数据连接驱动jar地址 -->
+	<classPathEntry
+		location="C:\Users\microsoft\.m2\repository\mysql\mysql-connector-java\6.0.6\mysql-connector-java-6.0.6.jar" />
+
+	<!-- 一个数据库一个context -->
+	<context id="mysql" defaultModelType="flat" targetRuntime="MyBatis3">
+		<!-- 自动识别数据库关键字，默认false，如果设置为true，根据SqlReservedWords中定义的关键字列表，MBG会自动给表名或字段名添加**分隔符**； 一般保留默认值，遇到数据库关键字（Java关键字），使用columnOverride覆盖 -->
+		<property name="autoDelimitKeywords" value="false" />
+		<!-- 生成的Java文件的编码 -->
+		<property name="javaFileEncoding" value="UTF-8" />
+		<!-- 格式化java代码 -->
+		<property name="javaFormatter"
+			value="org.mybatis.generator.api.dom.DefaultJavaFormatter" />
+		<!-- 格式化XML代码 -->
+		<property name="xmlFormatter"
+			value="org.mybatis.generator.api.dom.DefaultXmlFormatter" />
+		<!-- mergeable 为true时，可合并，为false，重新生成的时采用覆盖-->
+		<property name="mergeable" value="false"></property>
+
+		<!-- beginningDelimiter和endingDelimiter：指明数据库的用于标记数据库对象名的符号，比如ORACLE就是双引号，MYSQL默认是`反引号； -->
+		<property name="beginningDelimiter" value="`" />
+		<property name="endingDelimiter" value="`" />
+
+		<!-- 注释 -->
+		<commentGenerator>
+			<!-- 是否去除自动生成的注释 true：是 ： false:否 -->
+			<property name="suppressAllComments" value="true" />
+			<!-- 是否生成注释代时间戳 -->
+			<property name="suppressDate" value="false" />
+		</commentGenerator>
+
+		<!--数据库链接URL，用户名、密码 -->
+		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
+			connectionURL="jdbc:mysql://127.0.0.1:3306/frameworklearning?serverTimezone=UTC"
+			userId="ztesoft" password="ztesoft">
+		</jdbcConnection>
+
+		<!-- java类型处理器 用于处理DB中的类型到Java中的类型，默认使用JavaTypeResolverDefaultImpl； 注意一点，默认会先尝试使用Integer，Long，Short等来对应DECIMAL和 
+			NUMERIC数据类型； -->
+		<javaTypeResolver
+			type="org.mybatis.generator.internal.types.JavaTypeResolverDefaultImpl">
+			<!-- true：使用BigDecimal对应DECIMAL和 NUMERIC数据类型 false：默认, scale>0;length>18：使用BigDecimal; 
+				scale=0;length[10,18]：使用Long； scale=0;length[5,9]：使用Integer； scale=0;length<5：使用Short； -->
+			<property name="forceBigDecimals" value="false" />
+		</javaTypeResolver>
+
+		<!-- 生成实体类地址 -->
+		<javaModelGenerator targetPackage="com.ztesoft.frameworklearning.user.model"
+			targetProject="frameworklearning">
+			<!-- 是否在当前路径下新加一层schema,eg：fase路径com.ztesoft.frameworklearning.model， true:com.ztesoft.frameworklearning.model.[schemaName] -->
+			<property name="enableSubPackages" value="false" />
+			<!-- 是否针对string类型的字段在set的时候进行trim调用 -->
+			<property name="trimStrings" value="true" />
+		</javaModelGenerator>
+
+		<!-- 生成mapxml文件 -->
+		<sqlMapGenerator targetPackage="com.ztesoft.frameworklearning.src.main.resources.mapper.user"
+			targetProject="frameworklearning">
+			<!-- 是否在当前路径下新加一层schema,eg：fase路径com.ztesoft.frameworklearning.model， true:com.ztesoft.frameworklearning.model.[schemaName] -->
+			<property name="enableSubPackages" value="false" />
+		</sqlMapGenerator>
+
+		<!-- 生成mapxml对应client，也就是接口dao -->
+		<javaClientGenerator targetPackage="com.ztesoft.frameworklearning.user.mapper"
+			targetProject="frameworklearning" type="XMLMAPPER">
+			<!-- 是否在当前路径下新加一层schema,eg：fase路径com.ztesoft.frameworklearning.model， true:com.ztesoft.frameworklearning.model.[schemaName] -->
+			<property name="enableSubPackages" value="false" />
+		</javaClientGenerator>
+
+		<!-- 配置表信息 -->
+		<table schema="frameworklearning" tableName="indicator" domainObjectName="Indicator"
+			enableCountByExample="false" enableDeleteByExample="false"
+			enableSelectByExample="false" enableUpdateByExample="false">
+			<!-- schema即为数据库名 tableName为对应的数据库表 domainObjectName是要生成的实体类 enable*ByExample是否生成 
+				example类 -->
+
+			<!-- 忽略列，不生成bean 字段 -->
+			<ignoreColumn column="FRED" />
+			<!-- 指定列的java数据类型 -->
+			<columnOverride column="LONG_VARCHAR_FIELD" jdbcType="VARCHAR" />
+		</table>
+	</context>
+</generatorConfiguration>

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+                        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd"
+	default-autowire="byName">
+
+	<!-- 启动事务添加配置 -->
+	<!-- 扫描base-package指定下的有@Controller下的java类，并注册成bean -->
+	<context:component-scan base-package="com.ztesoft.frameworklearning"
+		use-default-filters="false">
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Service" />
+	</context:component-scan>
+
+	<context:component-scan base-package="com.ztesoft.frameworklearning"
+		use-default-filters="false">
+		<context:include-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+
+	<bean
+		class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+		<property name="messageConverters">
+			<util:list id="beanList">
+				<ref bean="stringHttpMessageConverter" />
+				<ref bean="mappingJackson2HttpMessageConverter" />
+				<!-- <ref bean="marshallingHttpMessageConverter" /> -->
+			</util:list>
+		</property>
+	</bean>
+
+	<bean id="stringHttpMessageConverter"
+		class="org.springframework.http.converter.StringHttpMessageConverter">
+
+		<!-- 避免出现中文乱码 -->
+		<constructor-arg value="UTF-8" index="0"></constructor-arg>
+
+		<property name="supportedMediaTypes">
+			<list>
+				<value>text/plain;charset=UTF-8</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="mappingJackson2HttpMessageConverter"
+		class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+		<property name="supportedMediaTypes">
+			<list>
+				<!-- 这里顺序不能反，一定先写text/html,不然ie下出现下载提示 -->
+				<value>text/html;charset=UTF-8</value>
+				<value>application/json;charset=UTF-8</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- <bean id="marshallingHttpMessageConverter" -->
+	<!-- class="org.springframework.http.converter.xml.MarshallingHttpMessageConverter"> -->
+	<!-- <property name="marshaller" ref="castorMarshaller" /> -->
+	<!-- <property name="unmarshaller" ref="castorMarshaller" /> -->
+
+	<!-- <property name="supportedMediaTypes"> -->
+	<!-- <list> -->
+	<!-- <value>text/xml;charset=UTF-8</value> -->
+	<!-- <value>application/xml;charset=UTF-8</value> -->
+	<!-- </list> -->
+	<!-- </property> -->
+	<!-- </bean> -->
+
+	<!-- <bean id="castorMarshaller" class="org.springframework.oxm.castor.CastorMarshaller" 
+		/> -->
+
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView"></property>
+		<property name="prefix" value="/WEB-INF/view/"></property>
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+
+	<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"></bean>
+
+	<bean
+		class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter"
+		p:messageConverters-ref="messageConverters"></bean>
+
+	<!-- 返回类型定义 -->
+	<util:list id="messageConverters">
+		<bean
+			class="org.springframework.http.converter.BufferedImageHttpMessageConverter" />
+		<bean
+			class="org.springframework.http.converter.ByteArrayHttpMessageConverter" />
+		<bean class="org.springframework.http.converter.StringHttpMessageConverter" />
+		<bean
+			class="org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter" />
+		<bean
+			class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter" />
+	</util:list>
+
+	<!-- 文件上传控制 -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="utf-8"></property>
+		<!-- 设置上传文件的最大尺寸为5MB -->
+		<property name="maxUploadSize" value="5242880"></property>
+		<property name="maxInMemorySize" value="40960"></property>
+	</bean>
+
+	<!-- 框架异常处理Handler -->
+	<bean id="exceptionResolver"
+		class="com.ztesoft.frameworklearning.exception.SystemExceptionHandler" />
+		
+	<!-- 拦截器 -->
+	<!-- 拦截顺序：登录拦截器 -->
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<!-- 拦截所有的do后缀的请求 -->
+			<mvc:mapping path="/**.do" />
+			<mvc:mapping path="/**.html" />
+			<mvc:mapping path="/**/**.do" />
+			<mvc:mapping path="/**/**.html" />
+			<mvc:mapping path="/**/**/**.do" />
+			<mvc:mapping path="/**/**/**.html" />
+
+			<!-- 设置不拦截的请求 -->
+			<mvc:exclude-mapping path="/" />
+			<mvc:exclude-mapping path="/homepage.html" />
+			<mvc:exclude-mapping path="/home.html" />
+			<bean class="com.ztesoft.frameworklearning.interceptor.LoginInterceptor" />
+		</mvc:interceptor>
+	</mvc:interceptors>
+	
+	<!-- 通知spring使用cglib而不是jdk的来生成代理方法 AOP可以拦截到Controller -->  
+	<aop:aspectj-autoproxy proxy-target-class="true"/> 
+
+	<!-- 对静态资源文件的访问 -->
+	<mvc:default-servlet-handler />
+	
+	<!-- 记录spring初始化容器、销毁容器时的时间点，作为系统的启动和停止时间 -->
+	<bean id="springListener" class="com.ztesoft.frameworklearning.listener.SpringListener"
+		scope="singleton" init-method="springStartup" destroy-method="springEnd" />
+
+	<!-- 默认的注解映射的支持 -->
+	<!-- 当配置了<mvc:annotation-driven/>后，会自动加载org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping和 
+		org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter，所以如果显式的的配置则需去掉配置<mvc:annotation-driven/> -->
+	<mvc:annotation-driven />
+</beans>

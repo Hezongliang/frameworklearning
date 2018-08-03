@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ztesoft.frameworklearning.user.mapper.UserMapper">
+  <resultMap id="UserResultMap" type="com.ztesoft.frameworklearning.user.model.User">
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="user_password" jdbcType="VARCHAR" property="userPassword" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="valid_time" jdbcType="TIMESTAMP" property="validTime" />
+    <result column="expire_time" jdbcType="TIMESTAMP" property="expireTime" />
+    <result column="last_login_time" jdbcType="TIMESTAMP" property="lastLoginTime" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  
+  <select id="getUserWithId" resultMap="UserResultMap">
+  	select user_id, 
+  	       user_password, 
+  	       status, 
+  	       email, 
+  	       valid_time, 
+  	       expire_time, 
+  	       last_login_time, 
+  	       create_time
+	  from sys_user 
+	  <trim prefix="where" prefixOverrides="and|or">
+	  	<if test="userId != null and userId.length() > 0">
+			and user_id = #{userId, jdbcType=VARCHAR}
+		</if>
+		<if test="userPassword != null and userPassword.length() > 0">
+		    and user_password = #{userPassword, jdbcType=VARCHAR}
+		</if>
+		<if test="status != null and status.length() > 0">
+		    and status = #{status, jdbcType=VARCHAR}
+		</if>
+		<if test="email != null and email.length() > 0">
+		    and email = #{email, jdbcType=VARCHAR}
+		</if>
+	  </trim>
+  </select>
+  
+  <update id="update">
+	update sys_user
+	<trim prefix="set" suffixOverrides=",">
+	  <if test="userPassword != null and userPassword.length() > 0">
+		user_password = #{userPassword, jdbcType=VARCHAR},
+	  </if>
+	  <if test="status != null and status.length() > 0">
+		status = #{status, jdbcType=VARCHAR},
+	  </if>
+	  <if test="email != null and email.length() > 0">
+		email = #{email, jdbcType=VARCHAR},
+	  </if>
+	  <if test="expireTime != null">
+		expire_time = #{expireTime, jdbcType=TIMESTAMP},
+	  </if>
+	  <if test="lastLoginTime != null">
+		last_login_time = #{lastLoginTime, jdbcType=TIMESTAMP},
+	  </if>
+	</trim>
+	 where user_id = #{userId, jdbcType=VARCHAR}
+  </update>
+  
+</mapper>

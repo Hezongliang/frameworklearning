@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+                        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd"
+	default-autowire="byName">
+
+	<!-- 标签默认情况下自动扫描指定路径下的包（含所有子包），将带有@Component、@Repository、@Service、@Controller标签的类自动注册到spring容器 -->
+	<!-- <context:component-scan base-package="com.ztesoft.frameworklearning"></context:component-scan> -->
+
+	<!-- 自动扫描 -->
+	<context:component-scan base-package="com.ztesoft.frameworklearning"
+		use-default-filters="false">
+		<context:include-filter type="annotation"
+			expression="org.springframework.stereotype.Repository" />
+		<context:include-filter type="annotation"
+			expression="org.springframework.stereotype.Service" />
+		<!-- <context:include-filter type="annotation" -->
+		<!-- expression="org.springframework.stereotype.Controller" /> -->
+		<context:include-filter type="annotation"
+			expression="org.springframework.stereotype.Component" />
+	</context:component-scan>
+
+	<context:component-scan base-package="com.ztesoft.frameworklearning"
+		use-default-filters="false">
+		<!-- 排除扫描service标签 -->
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Controller"></context:exclude-filter>
+	</context:component-scan>
+
+	<!-- 引入配置文件 -->
+	<!-- 数据库url、username和password，不加密时候使用使用spring自带的PropertyPlaceholderConfigurer，加密时使用扩展的PropertyPlaceholderConfigurerExtend -->
+	<!-- <bean id="propertyConfigurer" -->
+	<!-- class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"> -->
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath*:config/jdbc.properties</value>
+				<value>classpath*:config/redis.properties</value>
+			</list>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="fileEncoding" value="UTF-8"></property>
+	</bean>
+
+	<!-- spring datasource -->
+	<import resource="classpath*:config/spring-datasource.xml" />
+	
+	<!-- javaweb cache -->
+	<import resource="classpath*:config/cache-config.xml" />
+
+	<!-- spring data redis cluster -->
+	<import resource="classpath*:config/spring-redis.xml" />
+
+	<!-- spring quartz -->
+	<import resource="classpath*:config/spring-quartz.xml" />
+
+	<!-- spring druid -->
+	<import resource="classpath*:config/spring-druid.xml" />
+
+	<bean
+		class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor" />
+
+	<!-- 启动对@AspectJ注解的支持 -->  
+	<aop:aspectj-autoproxy/>
+		
+	<!-- google kaptcha的相关配置，springMVC环境下，要放在applicationContext.xml中配置 -->
+    <bean id="captchaProducer" class="com.google.code.kaptcha.impl.DefaultKaptcha">  
+        <property name="config">  
+            <bean class="com.google.code.kaptcha.util.Config">  
+                <constructor-arg>  
+                    <props> 
+                        <!-- 是否有边框 可选yes 或者 no --> 
+                        <prop key="kaptcha.border">yes</prop>  
+                        <!-- 边框颜色 -->
+                        <prop key="kaptcha.border.color">105,179,90</prop>  
+                        <!-- 验证码文本字符颜色 -->
+                        <prop key="kaptcha.textproducer.font.color">blue</prop>  
+                        <!-- 验证码文本字符大小 -->
+                        <prop key="kaptcha.textproducer.font.size">45</prop>  
+                        <!-- 验证码图片的宽度 默认200 -->
+                        <prop key="kaptcha.image.width">125</prop>  
+                        <!-- 验证码图片的高度 默认50 -->
+                        <prop key="kaptcha.image.height">45</prop>  
+                        <!-- 验证码文本字符长度  默认为5 -->
+                        <prop key="kaptcha.textproducer.char.length">4</prop>  
+                        <!-- 验证码文本字体样式  默认为new Font("Arial", 1, fontSize), new Font("Courier", 1, fontSize)  -->
+                        <prop key="kaptcha.textproducer.font.names">宋体,楷体,微软雅黑</prop>  
+                    </props>  
+                </constructor-arg>  
+            </bean>  
+        </property>  
+    </bean>
+</beans>
